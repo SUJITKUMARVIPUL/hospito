@@ -18,7 +18,7 @@ public class GuestController {
     private final GuestService guestService;
 
     // 1. Register a new guest
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<ApiResponse<Guest>> registerGuest(@RequestBody Guest guest) {
         Guest savedGuest = guestService.registerGuest(guest);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -26,14 +26,14 @@ public class GuestController {
     }
 
     // 2. Get all guests (for the guest directory)
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<Guest>>> getAllGuests() {
         List<Guest> guests = guestService.getAllGuests();
         return ResponseEntity.ok(ApiResponse.success(guests, "Guest list retrieved."));
     }
 
     // 3. Find guest by ID
-    @GetMapping("/{id}")
+    @GetMapping("/guestById/{id}")
     public ResponseEntity<ApiResponse<Guest>> getGuestById(@PathVariable Long id) {
         Guest guest = guestService.getGuestById(id);
         return ResponseEntity.ok(ApiResponse.success(guest, "Guest found."));
@@ -47,14 +47,14 @@ public class GuestController {
     }
 
     // 5. Update guest profile
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ApiResponse<Guest>> updateGuest(@PathVariable Long id, @RequestBody Guest guestDetails) {
         Guest updatedGuest = guestService.updateGuest(id, guestDetails);
         return ResponseEntity.ok(ApiResponse.success(updatedGuest, "Guest profile updated."));
     }
 
     // 6. Remove guest record
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteGuest(@PathVariable Long id) {
         guestService.deleteGuestById(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Guest record deleted."));

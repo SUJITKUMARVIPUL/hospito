@@ -4,5 +4,6 @@ public enum StaffRole {
     ADMIN,
     RECEPTIONIST,
     HOUSEKEEPING,
-    MANAGER
+    MANAGER,
+    ONBOARDING
 }

@@ -44,12 +44,10 @@ public class GuestService {
 
     public Guest updateGuest(Long guestId,Guest guestDetails){
         Guest existingGuest = getGuestById(guestId);
-        if(guestDetails.getFirstName() != null){
-            existingGuest.setFirstName(guestDetails.getFirstName());
+        if(guestDetails.getName() != null){
+            existingGuest.setName(guestDetails.getName());
         }
-        if(guestDetails.getLastName() != null){
-            existingGuest.setLastName(guestDetails.getLastName());
-        }
+
         if(guestDetails.getEmail() != null){
             existingGuest.setEmail(guestDetails.getEmail());
         }

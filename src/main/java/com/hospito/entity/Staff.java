@@ -27,7 +27,19 @@ public class Staff {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private StaffRole role;
-    private boolean isActive = true;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = false;
+
+    @PrePersist
+    protected void onCreate() {
+        // 1. If role is missing in JSON, set to RECEPTIONIST
+//        if (this.role == null) {
+//            this.role = StaffRole.ONBOARDING;
+//        }
+        if (this.isActive == null) {
+            this.isActive = false;
+        }
+    }
 }

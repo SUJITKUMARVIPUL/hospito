@@ -29,5 +29,6 @@ public class Booking {
     private Double totalAmount;
 
     private boolean isCheckedOut = false;
+    private boolean isCheckedIn = false;
 
 }

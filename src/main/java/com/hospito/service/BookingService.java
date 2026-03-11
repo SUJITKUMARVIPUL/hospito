@@ -12,10 +12,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,8 @@ public class BookingService {
     private final RoomRepository roomRepository;
     private final GuestRepository guestRepository;
     private final BookingRepository bookingRepository;
+
+    private final GuestService guestService;
 
     @Transactional
     public Booking createBooking(Long guestId, Long roomId, LocalDate checkIn,LocalDate checkOut){
@@ -44,6 +48,10 @@ public class BookingService {
                         ()->new HospitoException("Guest does not exists",HttpStatus.NOT_FOUND)
                 );
 
+        if(!room.getStatus().equals(RoomStatus.AVAILABLE)){
+            throw new HospitoException("Room status is not AVAILABLE",HttpStatus.CONFLICT);
+        }
+
         long days = ChronoUnit.DAYS.between(checkIn,checkOut);
         Double totalAmount = days * room.getPricePerNight();
 
@@ -57,10 +65,28 @@ public class BookingService {
                 .build();
 
         if(checkIn.equals(LocalDate.now())){
-            room.setStatus(RoomStatus.OCCUPIED);
-            roomRepository.save(room);
+            booking.setCheckedIn(true);
         }
         return bookingRepository.save(booking);
+    }
+
+    public List<Booking> allBookingsByNumber(String phoneNumber){
+        //it will give all bokking by this phone Number
+        List<Booking> bookings = bookingRepository.findByGuestPhoneNumber(phoneNumber);
+        if(bookings.isEmpty()){
+            throw new HospitoException("No booking found for given phone number",HttpStatus.NOT_FOUND);
+        }
+        return bookings;
+    }
+
+    public List<Booking> getCurrentlyStayingGuests(){
+        List<Booking> allBookings = bookingRepository.findAll();
+        return allBookings.stream().filter(booking -> booking.isCheckedIn() && !booking.isCheckedOut())
+                .toList();
+    }
+
+    public List<Booking> guestsThatHaveToCheckedOutToday(){
+        return getCurrentlyStayingGuests().stream().filter(booking -> booking.getCheckOutDate().equals(LocalDate.now())).toList();
     }
 
     @Transactional
@@ -69,8 +95,11 @@ public class BookingService {
                 .orElseThrow(
                         () -> new HospitoException("Booking not exists", HttpStatus.NOT_FOUND)
                 );
+        if(!booking.isCheckedIn()){
+            throw new HospitoException("Guest not checked IN",HttpStatus.CONFLICT);
+        }
         if(booking.isCheckedOut()){
-            throw new HospitoException("Guest is already checked out",HttpStatus.CONFLICT);
+            throw new HospitoException("Guest already checked out",HttpStatus.CONFLICT);
         }
         booking.setCheckedOut(true);
         Room room = booking.getRoom();
@@ -78,4 +107,20 @@ public class BookingService {
         roomRepository.save(room);
         return bookingRepository.save(booking);
     }
+
+    @Transactional
+    public String cancelBooking(Long bookingId){
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(
+                        ()-> new HospitoException("Booking not exists", HttpStatus.NOT_FOUND)
+                );
+        //we will check first booking checkIn date is earlier than 1 day
+        if(booking.getCheckInDate().isAfter(LocalDate.now().plusDays(1L))){
+            bookingRepository.delete(booking);
+            return "Booking has been cancelled";
+        }
+        return "Booking can't be cancelled";
+    }
+
+
 }

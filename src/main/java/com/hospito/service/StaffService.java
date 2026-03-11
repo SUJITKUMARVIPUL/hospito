@@ -6,6 +6,7 @@ import com.hospito.exception.HospitoException;
 import com.hospito.repository.StaffRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StaffService {
     private final StaffRepository staffRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Staff registerStaff(Staff staff){
         if(staffRepository.existsByUsername(staff.getUsername())){
@@ -25,6 +27,8 @@ public class StaffService {
         if(staffRepository.existsByEmail(staff.getEmail())){
             throw new HospitoException(staff.getEmail()+" already exist!", HttpStatus.CONFLICT);
         }
+        staff.setPassword(passwordEncoder.encode(staff.getPassword()));
+        staff.setRole(StaffRole.ONBOARDING);
         return staffRepository.save(staff);
     }
 
@@ -45,7 +49,7 @@ public class StaffService {
 
     public void deactivateStaff(Long staffId){
         Staff staff = getStaffById(staffId);
-        staff.setActive(false);
+        staff.setIsActive(false);
         staffRepository.save(staff);
     }
 
@@ -55,7 +59,7 @@ public class StaffService {
                 .orElseThrow(
                         ()->new HospitoException("Staff not found with "+usernameOrEmail,HttpStatus.NOT_FOUND)
                 );
-        if (!staff.isActive()){
+        if (!staff.getIsActive()){
             throw new HospitoException("Account is inactive.Contact Admin", HttpStatus.FORBIDDEN);
         }
         if(!password.equals(staff.getPassword())){

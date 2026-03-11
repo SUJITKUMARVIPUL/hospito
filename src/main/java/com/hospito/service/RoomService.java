@@ -18,7 +18,10 @@ public class RoomService {
 
     public Room createRoom(Room room) {
         if(roomRepository.findByRoomNumber(room.getRoomNumber()).isPresent()){
-            throw new HospitoException("Room number" + room.getRoomNumber()+" already exists!", HttpStatus.CONFLICT);
+            throw new HospitoException("Room number " + room.getRoomNumber()+" already exists!", HttpStatus.CONFLICT);
+        }
+        if(room.getStatus()==null || room.getStatus().describeConstable().isEmpty()){
+            room.setStatus(RoomStatus.AVAILABLE);
         }
         return roomRepository.save(room);
     }
@@ -38,11 +41,12 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
-    public void deleteRoom(Long roomId){
+    public String deleteRoom(Long roomId){
         if(!roomRepository.existsById(roomId)){
             throw new HospitoException("Room with id "+roomId+" does not exists!",HttpStatus.NOT_FOUND);
         }
         roomRepository.deleteById(roomId);
+        return "Room with id "+roomId+" has been deleted!";
     }
 
 }
