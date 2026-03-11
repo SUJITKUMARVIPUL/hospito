@@ -25,7 +25,4 @@ public class ApiResponse<T> {
         return new ApiResponse<>( 201, message, data);
     }
 
-    public static ApiResponse<String> error(String message) {
-        return new ApiResponse<>( 201, "error occured",message);
-    }
 }

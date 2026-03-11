@@ -4,7 +4,6 @@ import com.hospito.entity.num.RoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import static com.hospito.entity.num.RoomStatus.AVAILABLE;
 
 @Entity
 @Getter

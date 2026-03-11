@@ -2,7 +2,6 @@ package com.hospito.controller;
 
 import com.hospito.dto.ApiResponse;
 import com.hospito.entity.Booking;
-import com.hospito.entity.Guest;
 import com.hospito.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +29,6 @@ public class BookingController {
     @GetMapping("/allBookingsByNumber")
     public List<Booking> getBookings(@RequestParam String contact){
         List<Booking> bookings = bookingService.allBookingsByNumber(contact);
-//        List<Booking> list = bookings.stream().filter(booking -> booking.getCheckInDate().isEqual(LocalDate.now())).toList();
         return bookings;
     }
 

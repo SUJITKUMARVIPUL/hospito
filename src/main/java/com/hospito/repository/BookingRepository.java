@@ -11,9 +11,7 @@ import java.util.List;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByRoomIdAndIsCheckedOutFalse(Long roomId);
 
-    List<Booking> findByGuest(Guest guest);
     List<Booking> findByGuestPhoneNumber(String guestNumber);
 
     @Query("SELECT b FROM Booking b WHERE b.room.id = :roomId " +
